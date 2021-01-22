@@ -1,18 +1,17 @@
-#ifndef Names_h
-#define Names_h
+/* This software is licensed under the MIT License: https://github.com/spacehuhntech/esp8266_deauther */
 
-#include "Arduino.h"
-#include <FS.h>
+#pragma once
+
 #include <ESP8266WiFi.h>
 extern "C" {
   #include "user_interface.h"
 }
-#include "ArduinoJson.h"
+#include "src/ArduinoJson-v5.13.5/ArduinoJson.h"
 #include "language.h"
 #include "SimpleList.h"
 
 #define NAME_LIST_SIZE 25
-#define NAME_MAX_LENGTH 16
+#define NAME_MAX_LENGTH 17
 
 extern void checkFile(String path, String data);
 extern JsonVariant parseJSONFile(String path, DynamicJsonBuffer& jsonBuffer);
@@ -100,5 +99,3 @@ class Names {
         void internal_remove(int num);
         void internal_removeAll();
 };
-
-#endif // ifndef Names_h

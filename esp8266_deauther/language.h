@@ -1,5 +1,6 @@
-#ifndef language_h
-#define language_h
+/* This software is licensed under the MIT License: https://github.com/spacehuhntech/esp8266_deauther */
+
+#pragma once
 
 #include "Arduino.h"
 
@@ -200,9 +201,8 @@ const char CLI_HELP_COMMENT[] PROGMEM = "// <comments>";
 const char CLI_HELP_SEND_DEAUTH[] PROGMEM = "send deauth <apMac> <stMac> <rason> <channel>";
 const char CLI_HELP_SEND_BEACON[] PROGMEM = "send beacon <mac> <ssid> <ch> [wpa2]";
 const char CLI_HELP_SEND_PROBE[] PROGMEM = "send probe <mac> <ssid> <ch>";
-const char CLI_HELP_LED_A[] PROGMEM = "led <r> <g> <b> [<brightness>]";
-const char CLI_HELP_LED_B[] PROGMEM = "led <#rrggbb> [<brightness>]";
-const char CLI_HELP_LED_ENABLE[] PROGMEM = "led <enable/disable>";
+const char CLI_HELP_LED_A[] PROGMEM = "led <r> <g> <b>";
+const char CLI_HELP_LED_B[] PROGMEM = "led <#rrggbb>";
 const char CLI_HELP_DRAW[] PROGMEM = "draw";
 const char CLI_HELP_SCREEN_ON[] PROGMEM = "screen <on/off>";
 const char CLI_HELP_SCREEN_MODE[] PROGMEM = "screen mode <menu/packetmonitor/buttontest/loading>";
@@ -541,5 +541,82 @@ const char W_BAD_ARGS[] PROGMEM = "BAD ARGS";
 const char W_BAD_PATH[] PROGMEM = "BAD PATH";
 const char W_FILE_NOT_FOUND[] PROGMEM = "ERROR 404 File Not Found";
 const char W_STARTED_AP[] PROGMEM = "Started AP";
+const char W_WEBINTERFACE[] PROGMEM = "/web"; // default folder containing the web files
+const char W_DEFAULT_LANG[] PROGMEM = "/lang/default.lang";
 
-#endif // ifndef language_h
+const char W_HTML[] PROGMEM = "text/html";
+const char W_CSS[] PROGMEM = "text/css";
+const char W_JS[] PROGMEM = "application/javascript";
+const char W_PNG[] PROGMEM = "image/png";
+const char W_GIF[] PROGMEM = "image/gif";
+const char W_JPG[] PROGMEM = "image/jpeg";
+const char W_ICON[] PROGMEM = "image/x-icon";
+const char W_XML[] PROGMEM = "text/xml";
+const char W_XPDF[] PROGMEM = "application/x-pdf";
+const char W_XZIP[] PROGMEM = "application/x-zip";
+const char W_GZIP[] PROGMEM = "application/x-gzip";
+const char W_JSON[] PROGMEM = "application/json";
+const char W_TXT[] PROGMEM = "text/plain";
+
+const char W_DOT_HTM[] PROGMEM = ".htm";
+const char W_DOT_HTML[] PROGMEM = ".html";
+const char W_DOT_CSS[] PROGMEM = ".css";
+const char W_DOT_JS[] PROGMEM = ".js";
+const char W_DOT_PNG[] PROGMEM = ".png";
+const char W_DOT_GIF[] PROGMEM = ".gif";
+const char W_DOT_JPG[] PROGMEM = ".jpg";
+const char W_DOT_ICON[] PROGMEM = ".ico";
+const char W_DOT_XML[] PROGMEM = ".xml";
+const char W_DOT_PDF[] PROGMEM = ".pdf";
+const char W_DOT_ZIP[] PROGMEM = ".zip";
+const char W_DOT_GZIP[] PROGMEM = ".gz";
+const char W_DOT_JSON[] PROGMEM = ".json";
+
+// ===== SETTINGS ====== //
+// Version
+const char S_JSON_VERSION[] PROGMEM = "version";
+
+// Autosave
+const char S_JSON_AUTOSAVE[] PROGMEM = "autosave";
+const char S_JSON_AUTOSAVETIME[] PROGMEM = "autosavetime";
+
+// Attack
+const char S_JSON_BEACONCHANNEL[] PROGMEM = "beaconchannel";
+const char S_JSON_RANDOMTX[] PROGMEM = "randomTX";
+const char S_JSON_ATTACKTIMEOUT[] PROGMEM = "attacktimeout";
+const char S_JSON_DEAUTHSPERTARGET[] PROGMEM = "deauthspertarget";
+const char S_JSON_DEAUTHREASON[] PROGMEM = "deauthReason";
+const char S_JSON_BEACONINTERVAL[] PROGMEM = "beaconInterval";
+const char S_JSON_PROBESPERSSID[] PROGMEM = "probesPerSSID";
+
+// WiFi
+const char S_JSON_CHANNEL[] PROGMEM = "channel";
+const char S_JSON_MACST[] PROGMEM = "macSt";
+const char S_JSON_MACAP[] PROGMEM = "macAP";
+
+// Sniffer
+const char S_JSON_CHTIME[] PROGMEM = "chtime";
+const char S_JSON_MIN_DEAUTHS[] PROGMEM = "minDeauths";
+
+// AP
+const char S_JSON_SSID[] PROGMEM = "ssid";
+const char S_JSON_PASSWORD[] PROGMEM = "password";
+const char S_JSON_HIDDEN[] PROGMEM = "hidden";
+const char S_JSON_IP[] PROGMEM = "ip";
+
+// Web
+const char S_JSON_WEBINTERFACE[] PROGMEM = "webinterface";
+const char S_JSON_CAPTIVEPORTAL[] PROGMEM = "captivePortal";
+const char S_JSON_WEB_SPIFFS[] PROGMEM = "webSpiffs";
+const char S_JSON_LANG[] PROGMEM = "lang";
+
+// CLI
+const char S_JSON_SERIALINTERFACE[] PROGMEM = "serial";
+const char S_JSON_SERIAL_ECHO[] PROGMEM = "serialEcho";
+
+// LED
+const char S_JSON_LEDENABLED[] PROGMEM = "led";
+
+// Display
+const char S_JSON_DISPLAYINTERFACE[] PROGMEM = "display";
+const char S_JSON_DISPLAY_TIMEOUT[] PROGMEM = "displayTimeout";

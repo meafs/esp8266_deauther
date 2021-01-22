@@ -1,4 +1,8 @@
+/* This software is licensed under the MIT License: https://github.com/spacehuhntech/esp8266_deauther */
+
 #include "DisplayUI.h"
+
+#include "settings.h"
 
 // ===== adjustable ===== //
 void DisplayUI::configInit() {
@@ -61,8 +65,16 @@ void DisplayUI::setup() {
     setupButtons();
     buttonTime = currentTime;
 
+#ifdef RTC_DS3231
+    bool h12;
+    bool PM_time;
+    clock.setClockMode(false);
+    clockHour   = clock.getHour(h12, PM_time);
+    clockMinute = clock.getMinute();
+#else // ifdef RTC_DS3231
     clockHour   = random(12);
     clockMinute = random(60);
+#endif // ifdef RTC_DS3231
 
     // ===== MENUS ===== //
 
@@ -395,7 +407,7 @@ void DisplayUI::setup() {
 
             if (attack.isRunning()) {
                 attack.start(beaconSelected, deauthSelected, false, probeSelected, true,
-                             settings.getAttackSettings().timeout * 1000);
+                             settings::getAttackSettings().timeout * 1000);
             }
         });
         addMenuNode(&attackMenu, [this]() { // *BEACON 0/0
@@ -408,7 +420,7 @@ void DisplayUI::setup() {
 
             if (attack.isRunning()) {
                 attack.start(beaconSelected, deauthSelected, false, probeSelected, true,
-                             settings.getAttackSettings().timeout * 1000);
+                             settings::getAttackSettings().timeout * 1000);
             }
         });
         addMenuNode(&attackMenu, [this]() { // *PROBE 0/0
@@ -421,7 +433,7 @@ void DisplayUI::setup() {
 
             if (attack.isRunning()) {
                 attack.start(beaconSelected, deauthSelected, false, probeSelected, true,
-                             settings.getAttackSettings().timeout * 1000);
+                             settings::getAttackSettings().timeout * 1000);
             }
         });
         addMenuNode(&attackMenu, [this]() { // START
@@ -430,7 +442,7 @@ void DisplayUI::setup() {
         }, [this]() {
             if (attack.isRunning()) attack.stop();
             else attack.start(beaconSelected, deauthSelected, false, probeSelected, true,
-                              settings.getAttackSettings().timeout * 1000);
+                              settings::getAttackSettings().timeout * 1000);
         });
     });
 
@@ -451,7 +463,7 @@ void DisplayUI::setupLED() {
 
 #endif // ifdef HIGHLIGHT_LED
 
-void DisplayUI::update() {
+void DisplayUI::update(bool force) {
     if (!enabled) return;
 
     up->update();
@@ -459,9 +471,9 @@ void DisplayUI::update() {
     a->update();
     b->update();
 
-    draw();
+    draw(force);
 
-    uint32_t timeout = settings.getDisplaySettings().timeout * 1000;
+    uint32_t timeout = settings::getDisplaySettings().timeout * 1000;
 
     if (currentTime > timeout) {
         if (!tempOff) {
@@ -511,7 +523,7 @@ void DisplayUI::setupButtons() {
                 else currentMenu->selected = currentMenu->list->size() - 1;
             } else if (mode == DISPLAY_MODE::PACKETMONITOR) { // when in packet monitor, change channel
                 scan.setChannel(wifi_channel + 1);
-            } else if (mode == DISPLAY_MODE::CLOCK) {         // when in packet monitor, change channel
+            } else if (mode == DISPLAY_MODE::CLOCK) {
                 setTime(clockHour, clockMinute + 1, clockSecond);
             }
         }
@@ -644,16 +656,18 @@ String DisplayUI::getChannel() {
     return ch;
 }
 
-void DisplayUI::draw() {
-    if ((currentTime - drawTime > drawInterval) && currentMenu) {
+void DisplayUI::draw(bool force) {
+    if (force || ((currentTime - drawTime > drawInterval) && currentMenu)) {
         drawTime = currentTime;
 
         updatePrefix();
 
+#ifndef RTC_DS3231
         if (clockTime < currentTime - 1000) {
             setTime(clockHour, clockMinute++, clockSecond + 1);
             clockTime += 1000;
         }
+#endif // ifndef RTC_DS3231
 
         switch (mode) {
             case DISPLAY_MODE::BUTTON_TEST:
@@ -673,13 +687,16 @@ void DisplayUI::draw() {
                 break;
 
             case DISPLAY_MODE::INTRO:
-                if (currentTime - startTime >= screenIntroTime) {
+                if (!scan.isScanning() && (currentTime - startTime >= screenIntroTime)) {
                     mode = DISPLAY_MODE::MENU;
                 }
                 drawIntro();
                 break;
             case DISPLAY_MODE::CLOCK:
                 drawClock();
+                break;
+            case DISPLAY_MODE::RESETTING:
+                drawResetting();
                 break;
         }
 
@@ -774,8 +791,13 @@ void DisplayUI::drawIntro() {
     drawString(0, center(str(D_INTRO_0), maxLen));
     drawString(1, center(str(D_INTRO_1), maxLen));
     drawString(2, center(str(D_INTRO_2), maxLen));
-    drawString(3, center(str(D_INTRO_3), maxLen));
-    drawString(4, center(DEAUTHER_VERSION, maxLen));
+    drawString(3, center(DEAUTHER_VERSION, maxLen));
+    if (scan.isScanning()) {
+        if (currentTime - startTime >= screenIntroTime+4500) drawString(4, left(str(D_SCANNING_3), maxLen));
+        else if (currentTime - startTime >= screenIntroTime+3000) drawString(4, left(str(D_SCANNING_2), maxLen));
+        else if (currentTime - startTime >= screenIntroTime+1500) drawString(4, left(str(D_SCANNING_1), maxLen));
+        else if (currentTime - startTime >= screenIntroTime) drawString(4, left(str(D_SCANNING_0), maxLen));
+    }
 }
 
 void DisplayUI::drawClock() {
@@ -786,6 +808,10 @@ void DisplayUI::drawClock() {
     clockTime += String(clockMinute);
 
     display.drawString(64, 20, clockTime);
+}
+
+void DisplayUI::drawResetting() {
+    drawString(2, center(str(D_RESETTING), maxLen));
 }
 
 void DisplayUI::clearMenu(Menu* menu) {
@@ -889,4 +915,10 @@ void DisplayUI::setTime(int h, int m, int s) {
     clockHour   = h;
     clockMinute = m;
     clockSecond = s;
+
+#ifdef RTC_DS3231
+    clock.setHour(clockHour);
+    clock.setMinute(clockMinute);
+    clock.setSecond(clockSecond);
+#endif // ifdef RTC_DS3231
 }

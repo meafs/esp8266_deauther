@@ -1,40 +1,49 @@
-#ifndef config_h
-#define config_h
+/* This software is licensed under the MIT License: https://github.com/spacehuhntech/esp8266_deauther */
+
+#pragma once
+
+#define ENABLE_DEBUG
+#define DEBUG_PORT Serial
+#define DEBUG_BAUD 115200
 
 #define DEFAULT_ESP8266
 
-/* ---------------------------------------------------------- */
-/* ===>> !!! Uncomment the board taht you're using: !!! <<=== */
-/* ---------------------------------------------------------- */
-
 // #define NODEMCU
 // #define WEMOS_D1_MINI
-// #define DEAUTHER
-// #define DEAUTHER_V1
-// #define DEAUTHER_V2
-// #define DEAUTHER_V3
-// #define DEAUTHER_V3_5
-// #define D_DUINO_B_V5_LED_RING
-// #define DEAUTHER_BOY
-// #define NODEMCU_07
-// #define NODEMCU_07_V2
-// #define DEAUTHER_OLED
-// #define DEAUTHER_OLED_V1_5_S
-// #define DEAUTHER_OLED_V1_5
-// #define DEAUTHER_OLED_V2
-// #define DEAUTHER_OLED_V2_5
-// #define DEAUTHER_OLED_V3
-// #define DEAUTHER_OLED_V3_5
-// #define DEAUTHER_OLED_V4
-// #define DEAUTHER_OLED_V5
-// #define DEAUTHER_MOSTER
-// #define DEAUTHER_MOSTER_V2
-// #define DEAUTHER_MOSTER_V3
-// #define USB_DEAUTHER
-// #define USB_DEAUTHER_V2
-// #define DEAUTHER_WRISTBAND
-// #define DEAUTHER_WRISTBAND_V2
-// #define DEAUTHER_MINI
+// #define DISPLAY_EXAMPLE_I2C
+// #define DISPLAY_EXAMPLE_SPI
+
+// #define MALTRONICS
+// #define DSTIKE_DEAUTHER_V1
+// #define DSTIKE_DEAUTHER_V2
+// #define DSTIKE_DEAUTHER_V3
+// #define DSTIKE_DEAUTHER_V3_5
+// #define DSTIKE_D_DUINO_B_V5_LED_RING
+// #define DSTIKE_DEAUTHER_BOY
+// #define DSTIKE_NODEMCU_07
+// #define DSTIKE_NODEMCU_07_V2
+// #define DSTIKE_DEAUTHER_OLED
+// #define DSTIKE_DEAUTHER_OLED_V1_5_S
+// #define DSTIKE_DEAUTHER_OLED_V1_5
+// #define DSTIKE_DEAUTHER_OLED_V2
+// #define DSTIKE_DEAUTHER_OLED_V2_5
+// #define DSTIKE_DEAUTHER_OLED_V3
+// #define DSTIKE_DEAUTHER_OLED_V3_5
+// #define DSTIKE_DEAUTHER_OLED_V4
+// #define DSTIKE_DEAUTHER_OLED_V5
+// #define DSTIKE_DEAUTHER_OLED_V6
+// #define DSTIKE_DEAUTHER_MOSTER
+// #define DSTIKE_DEAUTHER_MOSTER_V2
+// #define DSTIKE_DEAUTHER_MOSTER_V3
+// #define DSTIKE_DEAUTHER_MOSTER_V4
+// #define DSTIKE_DEAUTHER_MOSTER_V5
+// #define DSTIKE_USB_DEAUTHER
+// #define DSTIKE_USB_DEAUTHER_V2
+// #define DSTIKE_DEAUTHER_WATCH
+// #define DSTIKE_DEAUTHER_WATCH_V2
+// #define DSTIKE_DEAUTHER_MINI
+// #define DSTIKE_DEAUTHER_MINI_EVO
+
 // #define LYASI_7W_E27_LAMP
 // #define AVATAR_5W_E14_LAMP
 
@@ -46,11 +55,81 @@
 // #define RESET_SETTINGS
 
 // ========== CONFIGS ========== //
-#if defined(D_DUINO_B_V5_LED_RING)
+
+
+// https://github.com/SpacehuhnTech/esp8266_deauther/wiki/Setup-Display-&-Buttons#example-setup-with-i2c-oled
+#if defined(DISPLAY_EXAMPLE_I2C)
+
+// ===== DISPLAY ===== //
+  #define SH1106_I2C
+// #define SSD1306_I2C
+
+  #define I2C_ADDR 0x3C
+  #define I2C_SDA 5
+  #define I2C_SCL 4
+
+// #define FLIP_DIPLAY true
+
+// ===== BUTTONS ===== //
+  #define BUTTON_UP 14
+  #define BUTTON_DOWN 12
+  #define BUTTON_A 13
 
 // ===== LED ===== //
   #define LED_NEOPIXEL_GRB
-  #define LED_NEOPIXEL_NUM 12
+// #define LED_NEOPIXEL_RGB
+
+  #define LED_NUM 1
+  #define LED_NEOPIXEL_PIN 9
+  #define LED_MODE_BRIGHTNESS 10
+
+
+// https://github.com/SpacehuhnTech/esp8266_deauther/wiki/Setup-Display-&-Buttons#example-setup-with-spi-oled
+#elif defined(DISPLAY_EXAMPLE_SPI)
+
+  #define SH1106_SPI
+// #define SSD1306_SPI
+
+  #define SPI_RES 5
+  #define SPI_DC 4
+  #define SPI_CS 15
+
+// #define FLIP_DIPLAY true
+
+// ===== BUTTONS ===== //
+  #define BUTTON_UP 0
+  #define BUTTON_DOWN 12
+  #define BUTTON_A 2
+
+// ===== LED ===== //
+  #define LED_NEOPIXEL_GRB
+// #define LED_NEOPIXEL_RGB
+
+  #define LED_NUM 1
+  #define LED_NEOPIXEL_PIN 9
+  #define LED_MODE_BRIGHTNESS 10
+
+#elif defined(MALTRONICS)
+
+// ===== Reset ====== //
+  #define RESET_BUTTON 5
+
+// ===== LED ===== //
+  #define LED_DOTSTAR
+  #define LED_NUM 1
+  #define LED_DOTSTAR_CLK 12
+  #define LED_DOTSTAR_DATA 13
+  #define LED_MODE_BRIGHTNESS 255
+
+// ===== Web ===== //
+#define WEB_IP_ADDR (192, 168, 4, 2)
+#define WEB_URL "deauther.tools"
+
+#elif defined(DSTIKE_D_DUINO_B_V5_LED_RING)
+
+// ===== LED ===== //
+  #define LED_NEOPIXEL_GRB
+  #define LED_NUM 12
   #define LED_NEOPIXEL_PIN 15
 
 // ===== DISPLAY ===== //
@@ -63,11 +142,11 @@
   #define BUTTON_DOWN 13
   #define BUTTON_A 14
 
-#elif defined(DEAUTHER_BOY)
+#elif defined(DSTIKE_DEAUTHER_BOY)
 
 // ===== LED ===== //
   #define LED_NEOPIXEL_GRB
-  #define LED_NEOPIXEL_NUM 1
+  #define LED_NUM 1
   #define LED_NEOPIXEL_PIN 15
 
 // ===== DISPLAY ===== //
@@ -81,18 +160,18 @@
   #define BUTTON_A 14
   #define BUTTON_B 12
 
-#elif defined(DEAUTHER_V3_5) || defined(NODEMCU_07_V2)
+#elif defined(DSTIKE_DEAUTHER_V3_5) || defined(DSTIKE_NODEMCU_07_V2)
 
 // ===== LED ===== //
   #define LED_NEOPIXEL_GRB
-  #define LED_NEOPIXEL_NUM 1
+  #define LED_NUM 1
   #define LED_NEOPIXEL_PIN 15
 
-#elif defined(DEAUTHER_OLED_V1_5_S)
+#elif defined(DSTIKE_DEAUTHER_OLED_V1_5_S)
 
 // ===== LED ===== //
   #define LED_NEOPIXEL_GRB
-  #define LED_NEOPIXEL_NUM 1
+  #define LED_NUM 1
   #define LED_NEOPIXEL_PIN 15
 
 // ===== DISPLAY ===== //
@@ -105,7 +184,7 @@
   #define BUTTON_DOWN 13
   #define BUTTON_A 14
 
-#elif defined(DEAUTHER_OLED) || defined(DEAUTHER_OLED_V1_5)
+#elif defined(DSTIKE_DEAUTHER_OLED) || defined(DSTIKE_DEAUTHER_OLED_V1_5)
 
 // ===== LED ===== //
   #define LED_DIGITAL
@@ -123,7 +202,7 @@
   #define BUTTON_DOWN 13
   #define BUTTON_A 14
 
-#elif defined(DEAUTHER_OLED_V2) || defined(DEAUTHER_OLED_V2_5)  || defined(DEAUTHER_OLED_V3)
+#elif defined(DSTIKE_DEAUTHER_OLED_V2) || defined(DSTIKE_DEAUTHER_OLED_V2_5)  || defined(DSTIKE_DEAUTHER_OLED_V3)
 
 // ===== LED ===== //
   #define LED_DIGITAL
@@ -141,11 +220,11 @@
   #define BUTTON_DOWN 13
   #define BUTTON_A 14
 
-#elif defined(DEAUTHER_OLED_V3_5) || defined(DEAUTHER_OLED_V4)  || defined(DEAUTHER_OLED_V5)  || defined(DEAUTHER_MOSTER)  || defined(DEAUTHER_MOSTER_V2)  || defined(DEAUTHER_MOSTER_V3)
+#elif defined(DSTIKE_DEAUTHER_OLED_V3_5) || defined(DSTIKE_DEAUTHER_OLED_V4)  || defined(DSTIKE_DEAUTHER_OLED_V5)  || defined(DSTIKE_DEAUTHER_MOSTER)  || defined(DSTIKE_DEAUTHER_MOSTER_V2)  || defined(DSTIKE_DEAUTHER_MOSTER_V3)  || defined(DSTIKE_DEAUTHER_MOSTER_V4)
 
 // ===== LED ===== //
   #define LED_NEOPIXEL_GRB
-  #define LED_NEOPIXEL_NUM 1
+  #define LED_NUM 1
   #define LED_NEOPIXEL_PIN 15
 
 // ===== DISPLAY ===== //
@@ -158,18 +237,11 @@
   #define BUTTON_DOWN 13
   #define BUTTON_A 14
 
-#elif defined(USB_DEAUTHER_V2)
+#elif defined(DSTIKE_DEAUTHER_OLED_V6) || defined(DSTIKE_DEAUTHER_MOSTER_V5)
 
 // ===== LED ===== //
   #define LED_NEOPIXEL_GRB
-  #define LED_NEOPIXEL_NUM 1
-  #define LED_NEOPIXEL_PIN 4
-
-#elif defined(DEAUTHER_WRISTBAND) || defined(DEAUTHER_WRISTBAND_V2) || defined(DEAUTHER_MINI)
-
-// ===== LED ===== //
-  #define LED_NEOPIXEL_GRB
-  #define LED_NEOPIXEL_NUM 1
+  #define LED_NUM 1
   #define LED_NEOPIXEL_PIN 15
 
   #define HIGHLIGHT_LED 16
@@ -178,6 +250,55 @@
   #define SH1106_I2C
   #define FLIP_DIPLAY true
   #define DISPLAY_TEXT "Hardware by DSTIKE"
+
+  #define RTC_DS3231
+
+// ===== BUTTONS ===== //
+  #define BUTTON_UP 12
+  #define BUTTON_DOWN 13
+  #define BUTTON_A 14
+
+#elif defined(DSTIKE_USB_DEAUTHER_V2)
+
+// ===== LED ===== //
+  #define LED_NEOPIXEL_GRB
+  #define LED_NUM 1
+  #define LED_NEOPIXEL_PIN 4
+
+#elif defined(DSTIKE_DEAUTHER_WATCH) || defined(DSTIKE_DEAUTHER_MINI)
+
+// ===== LED ===== //
+  #define LED_NEOPIXEL_GRB
+  #define LED_NUM 1
+  #define LED_NEOPIXEL_PIN 15
+
+  #define HIGHLIGHT_LED 16
+
+// ===== DISPLAY ===== //
+  #define SH1106_I2C
+  #define FLIP_DIPLAY true
+  #define DISPLAY_TEXT "Hardware by DSTIKE"
+
+// ===== BUTTONS ===== //
+  #define BUTTON_UP 12
+  #define BUTTON_DOWN 13
+  #define BUTTON_A 14
+
+#elif defined(DSTIKE_DEAUTHER_WATCH_V2) || defined(DSTIKE_DEAUTHER_MINI_EVO)
+
+// ===== LED ===== //
+  #define LED_NEOPIXEL_GRB
+  #define LED_NUM 1
+  #define LED_NEOPIXEL_PIN 15
+
+  #define HIGHLIGHT_LED 16
+
+// ===== DISPLAY ===== //
+  #define SH1106_I2C
+  #define FLIP_DIPLAY true
+  #define DISPLAY_TEXT "Hardware by DSTIKE"
+
+  #define RTC_DS3231
 
 // ===== BUTTONS ===== //
   #define BUTTON_UP 12
@@ -195,7 +316,7 @@
  #define LED_MODE_IDLE 0, 255, 0
  #define LED_MODE_BRIGHTNESS 10
 
- #define LED_MY92_NUM 1
+ #define LED_NUM 1
  #define LED_MY92_DATA 4
  #define LED_MY92_CLK 5
  #define LED_MY92_CH_R 0
@@ -215,7 +336,7 @@
  #define LED_MODE_IDLE 0, 255, 0
  #define LED_MODE_BRIGHTNESS 10
 
- #define LED_MY92_NUM 1
+ #define LED_NUM 1
  #define LED_MY92_DATA 13
  #define LED_MY92_CLK 15
  #define LED_MY92_CH_R 0
@@ -224,13 +345,13 @@
  #define LED_MY92_CH_BRIGHTNESS 3
  #define LED_MY92_MODEL MY92XX_MODEL_MY9291
 
-#elif defined(DEFAULT_ESP8266) || defined(NODEMCU) || defined(WEMOS_D1_MINI) || defined(USB_DEAUTHER) || defined(NODEMCU_07) || defined(DEAUTHER) || defined(DEAUTHER_V1) || defined(DEAUTHER_V2) || defined(DEAUTHER_V3)
+#elif defined(DEFAULT_ESP8266) || defined(NODEMCU) || defined(WEMOS_D1_MINI) || defined(DSTIKE_USB_DEAUTHER) || defined(DSTIKE_NODEMCU_07) || defined(DSTIKE_DEAUTHER_V1) || defined(DSTIKE_DEAUTHER_V2) || defined(DSTIKE_DEAUTHER_V3)
 // ===== LED ===== //
    #define LED_DIGITAL
    #define LED_PIN_R 16 // NodeMCU on-board LED
    #define LED_PIN_B 2  // ESP-12 LED
 
-#endif /* if defined(DEFAULT_ESP8266) || defined(NODEMCU) || defined(WEMOS_D1_MINI) || defined(USB_DEAUTHER) || defined(NODEMCU_07) || defined(DEAUTHER) || defined(DEAUTHER_V1) || defined(DEAUTHER_V2) || defined(DEAUTHER_V3) */
+#endif /* if defined(DEFAULT_ESP8266) || defined(NODEMCU) || defined(WEMOS_D1_MINI) || defined(DSTIKE_USB_DEAUTHER) || defined(DSTIKE_NODEMCU_07) || defined(DSTIKE_DEAUTHER) || defined(DSTIKE_DEAUTHER_V1) || defined(DSTIKE_DEAUTHER_V2) || defined(DSTIKE_DEAUTHER_V3) */
 // ============================== //
 
 
@@ -310,7 +431,7 @@
 #endif /* ifndef WEB_ENABLED */
 
 #ifndef WEB_CAPTIVE_PORTAL
-  #define WEB_CAPTIVE_PORTAL true
+  #define WEB_CAPTIVE_PORTAL false
 #endif /* ifndef WEB_CAPTIVE_PORTAL */
 
 #ifndef WEB_USE_SPIFFS
@@ -335,12 +456,12 @@
   #define LED_NEOPIXEL
 #endif /* if defined(LED_NEOPIXEL_RGB) || defined(LED_NEOPIXEL_GRB) */
 
-#if !defined(LED_DIGITAL) && !defined(LED_RGB) && !defined(LED_NEOPIXEL) && !defined(MY92)
+#if !defined(LED_DIGITAL) && !defined(LED_RGB) && !defined(LED_NEOPIXEL) && !defined(LED_MY92) && !defined(LED_DOTSTAR)
   #define LED_DIGITAL
   #define USE_LED false
-#else /* if !defined(LED_DIGITAL) && !defined(LED_RGB) && !defined(LED_NEOPIXEL) && !defined(MY92) */
+#else // if !defined(LED_DIGITAL) && !defined(LED_RGB) && !defined(LED_NEOPIXEL) && !defined(LED_MY92) && !defined(LED_DOTSTAR)
   #define USE_LED true
-#endif /* if !defined(LED_DIGITAL) && !defined(LED_RGB) && !defined(LED_NEOPIXEL) && !defined(MY92) */
+#endif // if !defined(LED_DIGITAL) && !defined(LED_RGB) && !defined(LED_NEOPIXEL) && !defined(LED_MY92) && !defined(LED_DOTSTAR)
 
 #ifndef LED_PIN_R
   #define LED_PIN_R 255
@@ -440,17 +561,34 @@
   #define BUTTON_B 255
 #endif // ifndef BUTTON_B
 
+// ===== Reset ====== //
+#ifndef RESET_BUTTON
+  #if BUTTON_UP != 0 && BUTTON_DOWN != 0 && BUTTON_A != 0 && BUTTON_B != 0 && BUTTON_B != 0
+    #define RESET_BUTTON 0
+  #else // if BUTTON_UP != 0 && BUTTON_DOWN != 0 && BUTTON_A != 0 && BUTTON_B != 0
+    #define RESET_BUTTON 255
+  #endif // if BUTTON_UP != 0 && BUTTON_DOWN != 0 && BUTTON_A != 0 && BUTTON_B != 0
+#endif // ifndef RESET_BUTTON
+
+// ===== Web ===== //
+#ifndef WEB_IP_ADDR
+  #define WEB_IP_ADDR (192, 168, 4, 1)
+#endif // ifndef WEB_IP_ADDR
+
+#ifndef WEB_URL
+  #define WEB_URL "deauth.me"
+#endif // ifndef WEB_URL
+
 // ======== CONSTANTS ========== //
 // Do not change these values unless you know what you're doing!
-#define DEAUTHER_VERSION "2.2.0"
+#define DEAUTHER_VERSION "2.6.0"
 #define DEAUTHER_VERSION_MAJOR 2
-#define DEAUTHER_VERSION_MINOR 2
+#define DEAUTHER_VERSION_MINOR 6
 #define DEAUTHER_VERSION_REVISION 0
 
 #define EEPROM_SIZE 4095
 #define BOOT_COUNTER_ADDR 1
-#define SETTINGS_HASH_ADDR BOOT_COUNTER_ADDR + sizeof(boot)
-#define SETTINGS_ADDR SETTINGS_HASH_ADDR + sizeof(settings_hash_t)
+#define SETTINGS_ADDR 100
 
 // ======== AVAILABLE SETTINGS ========== //
 
@@ -477,7 +615,7 @@
 
    // ===== WEB INTERFACE ===== //
  #define WEB_ENABLED true
- #define WEB_CAPTIVE_PORTAL true
+ #define WEB_CAPTIVE_PORTAL false
  #define WEB_USE_SPIFFS false
  #define DEFAULT_LANG "en"
 
@@ -501,7 +639,7 @@
  #define LED_NEOPIXEL_RGB
  #define LED_NEOPIXEL_GRB
 
- #define LED_NEOPIXEL_NUM 1
+ #define LED_NUM 1
  #define LED_NEOPIXEL_PIN 255
 
  #define LED_MODE_OFF 0,0,0
@@ -510,7 +648,7 @@
  #define LED_MODE_IDLE 0,255,0
  #define LED_MODE_BRIGHTNESS 10
 
- #define LED_MY92_NUM 1
+ #define LED_NUM 1
  #define LED_MY92_DATA 4
  #define LED_MY92_CLK 5
  #define LED_MY92_CH_R 0
@@ -519,6 +657,11 @@
  #define LED_MY92_CH_BRIGHTNESS 3
  #define LED_MY92_MODEL MY92XX_MODEL_MY9291
  #define LED_MY92_MODEL MY92XX_MODEL_MY9231
+
+ #define LED_DOTSTAR
+ #define LED_NUM 1
+ #define LED_DOTSTAR_CLK 12
+ #define LED_DOTSTAR_DATA 13
 
    // ===== DISPLAY ===== //
  #define USE_DISPLAY false
@@ -544,11 +687,17 @@
  #define BUTTON_A 255
  #define BUTTON_B 255
 
+   // ===== Reset ====== //
+ #define RESET_BUTTON 5
+
+
+   // ===== Web ===== //
+ #define WEB_IP_ADDR (192, 168, 4, 1)
+ #define WEB_URL "deauth.me"
+
  */
 
 // ========== ERROR CHECKS ========== //
 #if LED_MODE_BRIGHTNESS == 0
 #error LED_MODE_BRIGHTNESS must not be zero!
 #endif /* if LED_MODE_BRIGHTNESS == 0 */
-
-#endif /* ifndef config_h */

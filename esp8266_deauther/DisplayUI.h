@@ -1,9 +1,9 @@
-#ifndef DisplayUI_h
-#define DisplayUI_h
+/* This software is licensed under the MIT License: https://github.com/spacehuhntech/esp8266_deauther */
+
+#pragma once
 
 #include "language.h"
 #include "A_config.h"
-#include "Settings.h"
 #include "Names.h"
 #include "SSIDs.h"
 #include "Scan.h"
@@ -12,25 +12,29 @@
 // ===== adjustable ===== //
 #if defined(SSD1306_I2C)
   #include <Wire.h>
-  #include <SSD1306Wire.h>
+  #include "src/esp8266-oled-ssd1306-4.1.0/SSD1306Wire.h"
 #elif defined(SSD1306_SPI)
   #include <SPI.h>
-  #include <SSD1306Spi.h>
+  #include "src/esp8266-oled-ssd1306-4.1.0/SSD1306Spi.h"
 #elif defined(SH1106_I2C)
   #include <Wire.h>
-  #include <SH1106Wire.h>
+  #include "src/esp8266-oled-ssd1306-4.1.0/SH1106Wire.h"
 #elif defined(SH1106_SPI)
   #include <SPI.h>
-  #include <SH1106Spi.h>
+  #include "src/esp8266-oled-ssd1306-4.1.0/SH1106Spi.h"
 #endif /* if defined(SSD1306_I2C) */
 
-#include <SimpleButton.h>
+#ifdef RTC_DS3231
+#include "src/DS3231-1.0.3/DS3231.h"
+#endif // ifdef RTC_DS3231
+
+#include "src/SimpleButton/SimpleButton.h"
 
 using namespace simplebutton;
 
-extern Settings settings;
-extern Names    names;
-extern SSIDs    ssids;
+
+extern Names names;
+extern SSIDs ssids;
 extern Accesspoints accesspoints;
 extern Stations     stations;
 extern Scan     scan;
@@ -44,10 +48,14 @@ extern String right(String a, int len);
 extern String leftRight(String a, String b, int len);
 extern String replaceUtf8(String str, String r);
 
-const char D_INTRO_0[] PROGMEM = "";
-const char D_INTRO_1[] PROGMEM = "ESP8266 Deauther";
-const char D_INTRO_2[] PROGMEM = "by @Spacehuhn";
-const char D_INTRO_3[] PROGMEM = DISPLAY_TEXT;
+const char D_INTRO_0[] PROGMEM = "ESP8266 Deauther";
+const char D_INTRO_1[] PROGMEM = "by @Spacehuhn";
+const char D_INTRO_2[] PROGMEM = DISPLAY_TEXT;
+const char D_RESETTING[] PROGMEM = "Resetting...";
+const char D_SCANNING_0[] PROGMEM = "> Scanning";
+const char D_SCANNING_1[] PROGMEM = "> Scanning.";
+const char D_SCANNING_2[] PROGMEM = "> Scanning..";
+const char D_SCANNING_3[] PROGMEM = "> Scanning...";
 
 struct MenuNode {
     std::function<String()>getStr; // function used to create the displayed string
@@ -56,18 +64,25 @@ struct MenuNode {
 };
 
 struct Menu {
-    SimpleList<MenuNode>*list;
-    Menu  * parentMenu;
-    uint8_t selected;
+    SimpleList<MenuNode>* list;
+    Menu                * parentMenu;
+    uint8_t               selected;
     std::function<void()> build; // function that is executed when button is clicked
 };
 
+enum class DISPLAY_MODE { OFF,
+                          BUTTON_TEST,
+                          MENU,
+                          LOADSCAN,
+                          PACKETMONITOR,
+                          INTRO,
+                          CLOCK,
+                          RESETTING };
+
 class DisplayUI {
     public:
-        enum DISPLAY_MODE { OFF = 0, BUTTON_TEST = 1, MENU = 2, LOADSCAN = 3, PACKETMONITOR = 4, INTRO = 5, CLOCK = 6 };
-
-        uint8_t mode         = DISPLAY_MODE::MENU;
-        bool    highlightLED = false;
+        DISPLAY_MODE mode = DISPLAY_MODE::MENU;
+        bool highlightLED = false;
 
         Button* up   = NULL;
         Button* down = NULL;
@@ -85,10 +100,10 @@ class DisplayUI {
         SH1106Spi display = SH1106Spi(SPI_RES, SPI_DC, SPI_CS);
 #endif /* if defined(SSD1306_I2C) */
 
-        const uint8_t  maxLen          = 18;
-        const uint8_t  lineHeight      = 12;
-        const uint8_t  buttonDelay     = 250;
-        const uint8_t  drawInterval    = 100; // 100ms = 10 FPS
+        const uint8_t maxLen           = 18;
+        const uint8_t lineHeight       = 12;
+        const uint8_t buttonDelay      = 250;
+        const uint8_t drawInterval     = 100; // 100ms = 10 FPS
         const uint16_t scrollSpeed     = 500; // time interval in ms
         const uint16_t screenIntroTime = 2500;
         const uint16_t screenWidth     = 128;
@@ -112,7 +127,7 @@ class DisplayUI {
         void setupLED();
 #endif // ifdef HIGHLIGHT_LED
 
-        void update();
+        void update(bool force = false);
         void on();
         void off();
 
@@ -157,12 +172,13 @@ class DisplayUI {
         String getChannel();
 
         // draw functions
-        void draw();
+        void draw(bool force = false);
         void drawButtonTest();
         void drawMenu();
         void drawLoadingScan();
         void drawPacketMonitor();
         void drawIntro();
+        void drawResetting();
         void clearMenu(Menu* menu);
 
         // menu functions
@@ -185,6 +201,10 @@ class DisplayUI {
         int clockSecond = 0;
 
         uint32_t clockTime = 0;
+
+#ifdef RTC_DS3231
+        DS3231 clock;
+#endif // ifdef RTC_DS3231
 };
 
 // ===== FONT ===== //
@@ -646,5 +666,3 @@ const uint8_t DejaVu_Sans_Mono_12[] PROGMEM = {
     0x00, 0x00, 0xFC, 0x7F, 0x20, 0x08, 0x20, 0x08, 0x20, 0x08, 0xC0, 0x07,             // 254
     0x00, 0x00, 0x60, 0x40, 0x88, 0x67, 0x00, 0x1C, 0x88, 0x03, 0x60                    // 255
 };
-
-#endif // ifndef DisplayUI_h

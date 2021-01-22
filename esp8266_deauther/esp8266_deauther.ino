@@ -1,9 +1,7 @@
-/*
-   ===========================================
-      Copyright (c) 2018 Stefan Kremser
-             github.com/spacehuhn
-   ===========================================
- */
+/* =====================
+   This software is licensed under the MIT License:
+   https://github.com/spacehuhntech/esp8266_deauther
+   ===================== */
 
 extern "C" {
     // Please follow this tutorial:
@@ -14,7 +12,7 @@ extern "C" {
 
 #include "EEPROMHelper.h"
 
-#include <ArduinoJson.h>
+#include "src/ArduinoJson-v5.13.5/ArduinoJson.h"
 #if ARDUINOJSON_VERSION_MAJOR != 5
 // The software was build using ArduinoJson v5.x
 // version 6 is still in beta at the time of writing
@@ -25,7 +23,7 @@ extern "C" {
 #include "oui.h"
 #include "language.h"
 #include "functions.h"
-#include "Settings.h"
+#include "settings.h"
 #include "Names.h"
 #include "SSIDs.h"
 #include "Scan.h"
@@ -33,21 +31,20 @@ extern "C" {
 #include "CLI.h"
 #include "DisplayUI.h"
 #include "A_config.h"
-#include "webfiles.h"
 
-#include "LED.h"
+#include "led.h"
 
 // Run-Time Variables //
-LED led;
-Settings settings;
-Names    names;
-SSIDs    ssids;
+Names names;
+SSIDs ssids;
 Accesspoints accesspoints;
 Stations     stations;
 Scan   scan;
 Attack attack;
 CLI    cli;
 DisplayUI displayUI;
+
+simplebutton::Button* resetButton;
 
 #include "wifi.h"
 
@@ -66,15 +63,16 @@ void setup() {
 
     // start SPIFFS
     prnt(SETUP_MOUNT_SPIFFS);
-    bool spiffsError = !SPIFFS.begin();
-    prntln(spiffsError ? SETUP_ERROR : SETUP_OK);
+    // bool spiffsError = !LittleFS.begin();
+    LittleFS.begin();
+    prntln(/*spiffsError ? SETUP_ERROR : */ SETUP_OK);
 
     // Start EEPROM
     EEPROMHelper::begin(EEPROM_SIZE);
 
 #ifdef FORMAT_SPIFFS
     prnt(SETUP_FORMAT_SPIFFS);
-    SPIFFS.format();
+    LittleFS.format();
     prntln(SETUP_OK);
 #endif // ifdef FORMAT_SPIFFS
 
@@ -85,9 +83,9 @@ void setup() {
 #endif // ifdef FORMAT_EEPROM
 
     // Format SPIFFS when in boot-loop
-    if (spiffsError || !EEPROMHelper::checkBootNum(BOOT_COUNTER_ADDR)) {
+    if (/*spiffsError || */ !EEPROMHelper::checkBootNum(BOOT_COUNTER_ADDR)) {
         prnt(SETUP_FORMAT_SPIFFS);
-        SPIFFS.format();
+        LittleFS.format();
         prntln(SETUP_OK);
 
         prnt(SETUP_FORMAT_EEPROM);
@@ -102,31 +100,25 @@ void setup() {
 
     // load settings
     #ifndef RESET_SETTINGS
-    settings.load();
+    settings::load();
     #else // ifndef RESET_SETTINGS
-    settings.reset();
-    settings.save();
+    settings::reset();
+    settings::save();
     #endif // ifndef RESET_SETTINGS
 
-    // set mac address
-    wifi_set_macaddr(STATION_IF, (uint8_t*)settings.getWifiSettings().mac_st);
-    wifi_set_macaddr(SOFTAP_IF, (uint8_t*)settings.getWifiSettings().mac_ap);
-
-    // start WiFi
-    WiFi.mode(WIFI_OFF);
-    wifi_set_opmode(STATION_MODE);
+    wifi::begin();
     wifi_set_promiscuous_rx_cb([](uint8_t* buf, uint16_t len) {
         scan.sniffer(buf, len);
     });
 
     // start display
-    if (settings.getDisplaySettings().enabled) {
+    if (settings::getDisplaySettings().enabled) {
         displayUI.setup();
-        displayUI.mode = displayUI.DISPLAY_MODE::INTRO;
+        displayUI.mode = DISPLAY_MODE::INTRO;
     }
 
     // copy web files to SPIFFS
-    copyWebFiles(false);
+    // copyWebFiles(false);
 
     // load everything else
     names.load();
@@ -137,13 +129,10 @@ void setup() {
     scan.setup();
 
     // set channel
-    setWifiChannel(settings.getWifiSettings().channel);
-
-    // load Wifi settings: SSID, password,...
-    loadWifiConfigDefaults();
+    setWifiChannel(settings::getWifiSettings().channel, true);
 
     // dis/enable serial command interface
-    if (settings.getCLISettings().enabled) {
+    if (settings::getCLISettings().enabled) {
         cli.enable();
     } else {
         prntln(SETUP_SERIAL_WARNING);
@@ -152,7 +141,7 @@ void setup() {
     }
 
     // start access point/web interface
-    if (settings.getWebSettings().enabled) startAP();
+    if (settings::getWebSettings().enabled) wifi::startAP();
 
     // STARTED
     prntln(SETUP_STARTED);
@@ -161,14 +150,17 @@ void setup() {
     prntln(DEAUTHER_VERSION);
 
     // setup LED
-    led.setup();
+    led::setup();
+
+    // setup reset button
+    resetButton = new ButtonPullup(RESET_BUTTON);
 }
 
 void loop() {
     currentTime = millis();
 
-    led.update();    // update LED color
-    wifiUpdate();    // manage access point
+    led::update();   // update LED color
+    wifi::update();  // manage access point
     attack.update(); // run attacks
     displayUI.update();
     cli.update();    // read and run serial input
@@ -176,12 +168,12 @@ void loop() {
     ssids.update();  // run random mode, if enabled
 
     // auto-save
-    if (settings.getAutosaveSettings().enabled
-        && (currentTime - autosaveTime > settings.getAutosaveSettings().time)) {
+    if (settings::getAutosaveSettings().enabled
+        && (currentTime - autosaveTime > settings::getAutosaveSettings().time)) {
         autosaveTime = currentTime;
         names.save(false);
         ssids.save(false);
-        settings.save(false);
+        settings::save(false);
     }
 
     if (!booted) {
@@ -190,5 +182,21 @@ void loop() {
 #ifdef HIGHLIGHT_LED
         displayUI.setupLED();
 #endif // ifdef HIGHLIGHT_LED
+    }
+
+    resetButton->update();
+    if (resetButton->holding(5000)) {
+        led::setMode(LED_MODE::SCAN);
+        DISPLAY_MODE _mode = displayUI.mode;
+        displayUI.mode = DISPLAY_MODE::RESETTING;
+        displayUI.update(true);
+
+        settings::reset();
+        settings::save(true);
+
+        delay(2000);
+
+        led::setMode(LED_MODE::IDLE);
+        displayUI.mode = _mode;
     }
 }
